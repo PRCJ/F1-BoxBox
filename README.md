@@ -78,18 +78,3 @@ Minimum SDK: 24
 
 ---
 
-## Assignment Links
-
-* Figma design (provided in assignment email)
-* Blog Link (Education Card)
-* Instagram Link (F1 card)
-
----
-
-If you want, I can also help you:
-
-✅ Add a project GIF demo
-✅ Add badges/styles
-✅ Rewrite README in a casual tone or more professional tone
-✅ Upload screenshots & format them
-
