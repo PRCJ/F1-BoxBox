@@ -1,8 +1,3 @@
-Got it — you want it to look **human-written**, simple, clean, and not over-polished.
-Below is a more natural, developer-style README you can use 👇
-
----
-
 # F1 BoxBox App
 
 This is a small Android assignment project based on the provided Figma design.
