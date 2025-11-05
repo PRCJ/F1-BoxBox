@@ -2,7 +2,6 @@
 
 This is a small Android assignment project based on the provided Figma design.
 The app shows the top Formula-1 driver, next upcoming race details, and allows users to navigate to a race detail screen and external links (education blog + Instagram).
-
 The UI is built completely in Jetpack Compose and follows MVVM architecture.
 
 ---
@@ -26,7 +25,6 @@ The UI is built completely in Jetpack Compose and follows MVVM architecture.
 
 ![screen1](https://github.com/user-attachments/assets/1916e5bc-be75-448d-bbea-154b03152225)
 ![screen2](https://github.com/user-attachments/assets/f5f03aee-8343-4e61-a518-d0c887d12c31)
-
 
 ---
 
@@ -59,7 +57,6 @@ presentation → ViewModels + Compose screens + NavGraph
 2. Open in Android Studio (latest stable recommended)
 3. Sync Gradle
 4. Run on emulator or device
-
 Minimum SDK: 24
 
 ---
