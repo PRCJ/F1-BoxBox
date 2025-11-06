@@ -25,6 +25,8 @@ The UI is built completely in Jetpack Compose and follows MVVM architecture.
 
 ![screen1](https://github.com/user-attachments/assets/1916e5bc-be75-448d-bbea-154b03152225)
 ![screen2](https://github.com/user-attachments/assets/f5f03aee-8343-4e61-a518-d0c887d12c31)
+![screen 3](https://github.com/user-attachments/assets/821bc850-5b5d-4616-a458-809c77b3a794)
+
 
 ---
 
