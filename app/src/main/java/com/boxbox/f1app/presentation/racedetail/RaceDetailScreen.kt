@@ -1,216 +1,341 @@
 package com.boxbox.f1app.presentation.racedetail
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.boxbox.f1app.presentation.racedetail.components.CircuitInfoSection
-import com.boxbox.f1app.presentation.racedetail.components.FactCard
-import com.boxbox.f1app.util.DateTimeUtil
+import androidx.compose.ui.unit.sp
+import com.boxbox.f1app.R
+import com.boxbox.f1app.data.model.Race
+import com.boxbox.f1app.presentation.theme.BrightGreen
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import java.text.SimpleDateFormat
+import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RaceDetailScreen(
     raceId: String,
     onNavigateBack: () -> Unit,
-    viewModel: RaceDetailViewModel = viewModel()
+    viewModel: RaceDetailViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = uiState.race?.raceName ?: "Race Details",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                }
-
-                uiState.error != null -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Error: ${uiState.error}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(onClick = onNavigateBack) {
-                            Text("Go Back")
-                        }
-                    }
-                }
-
-                uiState.race != null && uiState.circuitDetail != null -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        val race = uiState.race!!
-                        val circuitDetail = uiState.circuitDetail!!
-
-                        // Race header
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(20.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = race.raceName,
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-
-                                Text(
-                                    text = race.circuitName,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                                )
-
-                                Text(
-                                    text = "${race.location}, ${race.country}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f)
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Text(
-                                    text = "Race Date: ${DateTimeUtil.formatToDate(race.raceStartTime)}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                        }
-
-                        // Circuit information
-                        CircuitInfoSection(circuitDetail)
-
-                        // Sessions
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(
-                                text = "Race Weekend Schedule",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-
-                            race.sessions.forEach { session ->
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surface
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column {
-                                            Text(
-                                                text = session.sessionName,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface
-                                            )
-
-                                            Text(
-                                                text = DateTimeUtil.formatToDate(session.startTime),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                            )
-                                        }
-
-                                        Text(
-                                            text = DateTimeUtil.formatToTime(session.startTime),
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        // Circuit facts
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text(
-                                text = "Interesting Facts",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-
-                            circuitDetail.facts.forEachIndexed { index, fact ->
-                                FactCard(fact = fact, index = index)
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                }
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = BrightGreen)
             }
         }
+
+        uiState.error != null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Error: ${uiState.error}",
+                    color = Color.White,
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        uiState.race != null -> {
+            RaceDetailContent(
+                race = uiState.race!!,
+                onNavigateBack = onNavigateBack
+            )
+        }
+    }
+}
+
+@Composable
+private fun RaceDetailContent(
+    race: Race,
+    onNavigateBack: () -> Unit
+) {
+    // Format dates from timestamps
+    val dateFormatter = SimpleDateFormat("dd - dd MMM", Locale.getDefault())
+    val startDate = try {
+        SimpleDateFormat("dd", Locale.getDefault()).format(Date(race.raceStartTime))
+    } catch (e: Exception) {
+        "23"
+    }
+    val endDate = try {
+        SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(race.raceEndTime))
+    } catch (e: Exception) {
+        "30 April"
+    }
+
+    // Get first session for countdown
+    val firstSession = race.sessions.firstOrNull()
+
+    // Countdown timer state
+    var daysLeft by remember { mutableIntStateOf(7) }
+    var hoursLeft by remember { mutableIntStateOf(16) }
+    var minutesLeft by remember { mutableIntStateOf(42) }
+
+    // Calculate countdown
+    LaunchedEffect(firstSession) {
+        while (isActive) {
+            try {
+                if (firstSession != null) {
+                    val now = System.currentTimeMillis()
+                    val sessionTime = firstSession.startTime.toLong()
+                    val diff = sessionTime - now
+
+                    if (diff > 0) {
+                        daysLeft = (diff / (1000 * 60 * 60 * 24)).toInt()
+                        hoursLeft = ((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toInt()
+                        minutesLeft = ((diff % (1000 * 60 * 60)) / (1000 * 60)).toInt()
+                    } else {
+                        daysLeft = 0
+                        hoursLeft = 0
+                        minutesLeft = 0
+                    }
+                }
+            } catch (e: Exception) {
+                // Keep default values
+            }
+            delay(60000)
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF006644), // Dark green at top
+                        Color.Black // Black at bottom
+                    ),
+                    startY = 0f,
+                    endY = 800f
+                )
+            )
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Title at top center
+        Text(
+            text = "Upcoming race",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 48.dp, bottom = 24.dp)
+        )
+
+        // Hero Section
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp)
+                .padding(horizontal = 24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Round number
+                Text(
+                    text = "Round ${race.round}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Race name
+                Text(
+                    text = race.raceName,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    lineHeight = 36.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Date range
+                Text(
+                    text = "$startDate - $endDate",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+            }
+
+            // Circuit image overlay
+            Image(
+                painter = painterResource(id = R.drawable.track),
+                contentDescription = "Circuit",
+                modifier = Modifier
+                    .size(180.dp)
+                    .align(Alignment.CenterEnd)
+                    .offset(x = 10.dp),
+                contentScale = ContentScale.Fit,
+                alpha = 0.5f
+            )
+        }
+
+        // Countdown Timer Section
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp)
+        ) {
+            Text(
+                text = "FP1 Starts in",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CountdownItem(
+                    value = String.format("%02d", daysLeft),
+                    label = "Days"
+                )
+                CountdownItem(
+                    value = String.format("%02d", hoursLeft),
+                    label = "Hours"
+                )
+                CountdownItem(
+                    value = String.format("%02d", minutesLeft),
+                    label = "Minutes"
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Circuit Description Section - Black background
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(24.dp)
+        ) {
+            // Circuit name
+            Text(
+                text = "${race.circuitName} Circuit",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Circuit description
+            Text(
+                text = "Bahrain International circuit is located in Sakhir, Bahrain and it was designed by German architect Hermann Tilke. It was built on the site of a former camel farm, in Sakhir. It measures 5.412 km, has 15 corners and 3 DRS Zones. The Grand Prix has 57 laps. This circuit has 6 alternative layouts.",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.White.copy(alpha = 0.9f),
+                lineHeight = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Circuit Facts
+            Text(
+                text = "Circuit Facts",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Facts
+            val facts = listOf(
+                "His brother Arthur Leclerc is currently set to race for DAMS in the 2023 F2 Championship",
+                "He's not related to Edouard Leclerc, the founder of a French supermarket chain"
+            )
+
+            facts.forEach { fact ->
+                FactItem(fact = fact)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+    }
+}
+
+@Composable
+private fun CountdownItem(value: String, label: String) {
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = value,
+            fontSize = 40.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF00884D), // Darker shade of green
+            lineHeight = 40.sp
+        )
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+    }
+}
+
+@Composable
+private fun FactItem(fact: String) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .offset(y = 7.dp)
+                .background(
+                    color = BrightGreen,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(3.dp)
+                )
+        )
+
+        Text(
+            text = fact,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.White.copy(alpha = 0.9f),
+            lineHeight = 20.sp,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
